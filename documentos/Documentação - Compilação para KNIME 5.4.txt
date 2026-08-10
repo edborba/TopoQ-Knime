@@ -1,0 +1,315 @@
+============================================================
+  DOCUMENTAÇÃO - COMPILAÇÃO DA EXTENSÃO "TOPOQ"
+  PARA KNIME ANALYTICS PLATFORM 5.4.x
+============================================================
+
+Última atualização: 01/08/2026
+
+Esta documentação descreve como compilar (bundling) a extensão
+unificada topoq — que contém os três nós Batch Geometry Optimizer,
+Bond Distance Checker e Structure Correction — em um update
+site instalável em máquinas com KNIME 5.4.x, sem precisar de
+Python/conda na máquina de destino.
+
+============================================================
+  CONCEITO IMPORTANTE: A VERSÃO DO BUNDLER É A VERSÃO ALVO
+============================================================
+
+Desde a versão 5.3 do knime-extension-bundling NÃO existe mais a
+opção --knime-version. A versão do pacote knime-extension-bundling
+instalada no ambiente de compilação DETERMINA a versão do KNIME
+para a qual o build serve:
+
+  - knime-extension-bundling=5.12  ->  build para KNIME ~5.12
+    (ambiente "knime-ext-bundling" já existente nesta máquina)
+  - knime-extension-bundling=5.4   ->  build para KNIME 5.4.x
+    (ambiente "knime-ext-bundling-5.4", descrito abaixo)
+
+Instalar um build 5.12 em um KNIME 5.4 produz o erro:
+  "Missing requirement ... requires
+   'org.knime.features.python3.nodes.feature.group 5.10.0/5.12.0'
+   but it could not be found"
+
+Além disso, o fluxo de build mudou entre as versões:
+  - Bundler 5.4  : knime.yml usa "env_yml_path" (environment.yml)
+  - Bundler 5.11+: knime.yml usa "pixi_toml_path" (pixi.toml);
+                   env_yml_path falha com NotImplementedError
+
+ATENCAO: a pasta topoq contem APENAS o environment.yml. O
+pixi.toml e o pixi.lock foram removidos do projeto em 07/08/2026,
+para nao irem junto no pacote compilado (tudo que esta em topoq\
+e copiado para dentro dele).
+
+Consequencia: o projeto, como esta, so compila para KNIME 5.4.x.
+Para compilar para 5.11+ e preciso antes recriar o pixi.toml -
+as secoes deste documento que falam em "trocar para
+pixi_toml_path" pressupoem esse arquivo, que hoje nao existe.
+
+============================================================
+  ARQUIVOS DA EXTENSÃO (ESTADO PARA O BUILD 5.4)
+============================================================
+
+C:\Users\eborba\Documents\TopoQ - Knime\topoq\
+
+  knime.yml
+    - name: topoq / group_id: br.com.eborba.knime
+    - env_yml_path: environment.yml   <- ATIVO para o build 5.4
+      (para build 5.12+, trocar por "pixi_toml_path: pixi.toml")
+
+  environment.yml
+    - python=3.11
+    - knime-python-base=5.4     <- pinado na versão alvo
+    - knime-extension=5.4       <- pinado na versão alvo
+    - pandas
+    REGRA: os pacotes knime-* do environment.yml devem ter a MESMA
+    versão do knime-extension-bundling usado na compilação.
+
+  topoq.py        -> módulo de entrada (importa os 3 nós)
+  topoq_category.py     -> categoria "TopoQ" em Community Nodes
+  batch_geometry_optimizer.py   -> nó Batch Geometry Optimizer
+  bond_distance_checker.py -> nó Bond Distance Checker
+  structure_correction.py -> nó Structure Correction
+  icons\                -> topoq.png, bond_checker.png
+  LICENSE.txt           -> aviso de copyright (CASE) + LGPL-3.0-or-later;
+                           e esta que aparece durante a instalacao
+                           (apontada por license_file no knime.yml).
+                           SO ASCII - ver secao no fim do documento
+  LICENSE.pt-BR.txt     -> traducao de cortesia; pode ter acentos
+  LICENSE-LGPL.txt      -> texto integral da LGPL-3.0
+  LICENSE-GPL.txt       -> texto integral da GPL-3.0; a LGPL-3 incorpora
+                           os termos da GPL-3, entao precisa acompanhar
+OBS: os testes NAO ficam aqui. Estao em
+C:\Users\eborba\Documents\TopoQ - Knime\tests\, um nivel acima,
+de proposito: tudo que esta dentro da pasta topoq\ e copiado
+para dentro do pacote compilado. Rodar com:
+
+  python tests\test_batch_geometry_optimizer.py
+
+(a partir da raiz do projeto; cada teste acha os modulos em
+topoq\ sozinho)
+
+OBS: O Python 3.11 NÃO é impedimento para o KNIME 5.4 — o build
+embute o próprio ambiente Python 3.11 dentro do pacote. A máquina
+de destino não precisa ter Python instalado.
+
+============================================================
+  PASSO 1 - CRIAR O AMBIENTE DE COMPILAÇÃO (uma única vez)
+============================================================
+
+Abrir o Anaconda Prompt e rodar:
+
+  conda create -y -n knime-ext-bundling-5.4 --override-channels -c knime -c conda-forge knime-extension-bundling=5.4
+
+Notas:
+  - "--override-channels" ignora os canais defaults/bioconda do
+    .condarc, que deixam a resolução muito lenta (minutos).
+  - O ambiente é criado separado; NÃO mexe no ambiente
+    "knime-ext-bundling" (5.12) usado para builds do KNIME novo.
+
+Erros já vistos nesse passo e suas soluções:
+
+  a) "CondaError: Cannot link a source that does not exist"
+     -> cache de pacotes corrompido. Rodar:
+        conda clean --packages -y
+        (remove apenas downloads em cache não usados por nenhum
+        ambiente; nenhum ambiente existente é afetado)
+     -> repetir o conda create.
+
+  b) "CondaValueError: prefix already exists"
+     -> sobrou pasta de uma tentativa interrompida. Rodar:
+        conda env remove -y -n knime-ext-bundling-5.4
+        (ou: rmdir /s /q C:\Users\eborba\.conda\envs\knime-ext-bundling-5.4)
+     -> repetir o conda create.
+
+============================================================
+  ATENCAO: A VERSAO DO MICROMAMBA PODE QUEBRAR O BUILD
+============================================================
+
+O conda create acima nao fixa a versao do micromamba - ele puxa
+a mais recente do conda-forge. E o micromamba e quem de fato
+resolve as dependencias (o build_python_extension chama
+conda-lock, que chama micromamba, uma vez por plataforma).
+
+PROBLEMA CONFIRMADO em 07/08/2026: com micromamba 2.9.0 o lock
+de osx-64 morre com access violation:
+
+  returned non-zero exit status 3221225477
+
+3221225477 = 0xC0000005. Nao e mensagem de erro do solver, e
+crash do processo. O micromamba 2.9.0 estoura ao ler o canal
+local de pacotes virtuais que o conda-lock cria para simular
+outra plataforma. Nao ha nada de errado com a extensao.
+
+SOLUCAO - fixar uma versao antiga, contemporanea do
+knime-extension-bundling 5.4 (build de nov/2024):
+
+  conda install -y -n knime-ext-bundling-5.4 --override-channels -c conda-forge micromamba=2.0.5
+
+Conferir com:
+
+  conda run -n knime-ext-bundling-5.4 micromamba --version
+
+Esta maquina esta com a 2.0.5. Se um dia o build voltar a falhar
+so no osx-64, conferir esta versao ANTES de procurar em outro
+lugar - basta um "conda update" para o problema voltar.
+
+------------------------------------------------------------
+  VARIANTE DO MESMO PROBLEMA: __osx desatualizado
+------------------------------------------------------------
+
+Sintoma diferente, mesma etapa (lock de osx-64):
+
+  Could not lock the environment for platform osx-64
+  ...
+  nothing provides _numpy_rc needed by numpy-2.5.0rc1
+
+Causa aparente: o conda-lock traz uma tabela fixa de pacotes
+virtuais onde __osx para osx-64 vale 10.15 (OSX_VERSIONS_X86,
+em conda_lock/virtual_package.py), e o numpy atual no
+conda-forge exige __osx >= 11.0.
+
+IMPORTANTE: isto so foi observado com o micromamba 2.9.0. Com
+o micromamba 2.0.5 os quatro locks passam sem nenhum ajuste -
+confirmado no build de 07/08/2026. Ou seja, na pratica basta
+fixar a versao do micromamba (secao anterior); o que segue e
+so um plano B, caso um dia seja impossivel usar a 2.0.5.
+
+PLANO B - criar um arquivo virtual-packages.yml e rodar o build
+a partir da pasta dele (o conda-lock procura esse arquivo no
+diretorio de trabalho). Conteudo:
+
+  subdirs:
+    linux-64:
+      packages:
+        __unix: "0"
+        __linux: "5.10"
+        __glibc: "2.28"
+        __archspec: "1 x86_64"
+    osx-64:
+      packages:
+        __unix: "0"
+        __osx: "11.0"
+        __archspec: "1 x86_64"
+    osx-arm64:
+      packages:
+        __unix: "0"
+        __osx: "11.0"
+        __archspec: "1 arm64"
+    win-64:
+      packages:
+        __win: "0"
+        __archspec: "1 x86_64"
+
+CUIDADO: esse arquivo SUBSTITUI os defaults do conda-lock por
+completo. linux-64 e win-64 precisam estar nele mesmo ja
+funcionando, senao passam a falhar tambem.
+
+Consequencia: o pacote macOS passa a exigir macOS 11 ou
+superior. O numpy ja impunha isso.
+
+O arquivo NAO faz parte do projeto - com o micromamba 2.0.5 ele
+e desnecessario. Crie-o so se o erro acima aparecer.
+
+============================================================
+  ARQUIVO DE LICENCA: SO ASCII
+============================================================
+
+O bundler le o arquivo apontado por license_file SEM informar
+encoding (build_python_extension.py, _create_feature). Ou seja,
+usa o padrao da maquina - cp1252 no Windows em portugues.
+
+Se o arquivo tiver acentos, travessoes ou qualquer caractere
+fora do ASCII salvo em UTF-8, o build quebra no fim, depois de
+todos os locks (que demoram):
+
+  UnicodeDecodeError: 'charmap' codec can't decode byte 0x8d
+
+REGRA: o LICENSE.txt apontado por license_file deve ser ASCII
+puro. Por isso ele esta em ingles - que e tambem a versao com
+efeito juridico. A traducao em portugues fica em
+LICENSE.pt-BR.txt, que o bundler nao le e portanto pode ter
+acentos normalmente.
+
+Para conferir antes de compilar:
+
+  python -c "open('topoq/LICENSE.txt',encoding='ascii').read()"
+
+Se nao levantar erro, esta seguro.
+
+============================================================
+  PASSO 2 - COMPILAR
+============================================================
+
+No Anaconda Prompt:
+
+  conda activate knime-ext-bundling-5.4
+
+  build_python_extension.bat C:\Users\eborba\Documents\TopoQ - Knime\topoq C:\Users\eborba\Documents\TopoQ - Knime\topoq_build_5.4
+
+Notas:
+  - Usar o ".bat"! Digitar "build_python_extension.py" faz o
+    Windows ABRIR o arquivo no VS Code (associação .py) em vez de
+    executar, e nada é compilado. Alternativa equivalente:
+      python %CONDA_PREFIX%\Scripts\build_python_extension.py <origem> <destino>
+  - O build demora vários minutos (monta e empacota o ambiente
+    conda da extensão). Se voltar ao prompt imediatamente, não
+    executou.
+  - Se a pasta de destino já existir, acrescentar " -f" ao final
+    para sobrescrever.
+  - O 1º argumento é a pasta que contém o knime.yml; o 2º é a
+    pasta de saída do update site.
+
+============================================================
+  PASSO 3 - INSTALAR NA MÁQUINA DE DESTINO (KNIME 5.4.x)
+============================================================
+
+1. Compactar a pasta topoq_build_5.4 em .zip e copiar para
+   a outra máquina.
+2. No KNIME: File -> Preferences -> Install/Update ->
+   Available Software Sites -> Add -> Archive -> apontar o .zip
+   (ou "Local" apontando a pasta descompactada).
+3. File -> Install KNIME Extensions -> marcar "TopoQ" ->
+   concluir e reiniciar o KNIME.
+4. Os três nós aparecem em Community Nodes -> TopoQ.
+
+Requisitos na máquina de destino:
+  - KNIME Analytics Platform 5.4.x
+  - Extensão "KNIME Base Chemistry Types & Nodes" (o instalador
+    puxa automaticamente, pois está declarada em
+    feature_dependencies do knime.yml)
+  - MOPAC instalado (PATH ou C:\mopac\bin\mopac.exe)
+  - OpenBabel instalado (obabel no PATH, ou configurar o caminho
+    do obabel.exe no diálogo do nó Batch Geometry Optimizer)
+  - NÃO precisa de Python nem conda
+
+============================================================
+  COMO COMPILAR PARA OUTRAS VERSÕES DO KNIME
+============================================================
+
+Para KNIME mais novo (ex.: 5.12):
+  1. No knime.yml: trocar "env_yml_path: environment.yml" por
+     "pixi_toml_path: pixi.toml"
+  2. conda activate knime-ext-bundling   (ambiente com 5.12)
+  3. build_python_extension.bat <origem> <destino>
+
+Para outra versão 5.X qualquer:
+  1. Criar ambiente com knime-extension-bundling=5.X
+  2. Ajustar knime-python-base e knime-extension para 5.X
+     (no environment.yml se 5.X <= 5.4-5.10; no pixi.toml se o
+     bundler da versão já exigir pixi)
+  3. Compilar como no Passo 2.
+
+============================================================
+  OBSERVAÇÃO SOBRE WORKFLOWS EXISTENTES
+============================================================
+
+A extensão unificada tem ID novo (br.com.eborba.knime.topoq).
+Workflows que usavam os nós das extensões antigas
+(mopac_extension_2, mopac_bond_checker, correcao_estrutura)
+mostrarão os nós como "missing": basta substituí-los pelos nós
+correspondentes da categoria TopoQ. ATENCAO: os nomes dos nos
+mudaram, entao o substituto nao tem o mesmo nome do que sumiu -
+os atuais sao Batch Geometry Optimizer (calculo), Structure
+Correction (correcao) e Bond Distance Checker (validacao). Alem
+disso o Structure Correction teve a ordem das entradas invertida:
+MOPAC Results agora e a entrada 1.

@@ -1,0 +1,36 @@
+TopoQ - KNIME extension for topology-preserving semiempirical geometry
+optimization
+
+Copyright (C) 2026 CASE
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with this program. If not, see <https://www.gnu.org/licenses/>.
+
+The full text of the LGPL v3 is in LICENSE-LGPL.txt, and the text of the GPL v3,
+which the LGPL incorporates by reference, is in LICENSE-GPL.txt. Both are
+distributed with this extension.
+
+A Portuguese translation of this notice is in LICENSE.pt-BR.txt. It is provided
+for convenience only; the English text above is the one with legal effect.
+
+
+-------------------------------------------------------------------------------
+MOPAC and Open Babel
+-------------------------------------------------------------------------------
+
+MOPAC (Apache-2.0) and Open Babel (GPL-2.0) are NOT redistributed with this
+extension. They are external programs, installed separately by the user and
+invoked as separate processes - no library of theirs is linked into this code.
+Each is governed by its own license, which accompanies its own installation.
+
+This extension is not affiliated with or endorsed by the MOPAC or Open Babel
+projects.

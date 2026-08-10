@@ -1,0 +1,216 @@
+# Documentação: Batch Geometry Optimizer (Extensão KNIME)
+
+## Visão Geral
+O nó **Batch Geometry Optimizer** é um dos três nós da extensão **TopoQ**, desenvolvida em
+Python, e executa cálculos do programa MOPAC (Molecular Orbital PACkage) a partir de uma
+tabela de entrada no KNIME. O nó converte as moléculas com OpenBabel, executa o MOPAC em
+paralelo e extrai as propriedades calculadas dos arquivos `.out`.
+
+Este nó faz apenas o **cálculo**. A saída traz a estrutura otimizada crua (convertida do
+`.out` pelo OpenBabel, com a tabela de ligações **adivinhada** pelas distâncias) e as
+propriedades. Para reaplicar as coordenadas otimizadas sobre a tabela de ligações correta
+da molécula original, conecte a saída deste nó ao nó **Structure Correction**, e
+depois ao **Bond Distance Checker** para validar a geometria.
+
+**Fluxo típico:**
+
+    Tabela original ──> Batch Geometry Optimizer ──> Structure Correction (entrada 1) ──> Bond Distance Checker
+    Tabela original ───────────────────────> Structure Correction (entrada 2)
+
+**Detalhes da Extensão**
+- **Nome do nó:** Batch Geometry Optimizer
+- **Extensão:** TopoQ (`br.com.eborba.knime.topoq`)
+- **Categoria no KNIME:** Community Nodes → TopoQ
+- **Pasta do projeto:** `topoq`
+- **Arquivo do nó:** `batch_geometry_optimizer.py`
+- **Versão da extensão:** 0.1.0
+- **Autor:** eborba
+
+---
+
+## Tabela de Entrada (Input)
+As colunas de identificador e de molécula são selecionadas no diálogo do nó
+(parâmetros **ID column** e **Molecule column**):
+
+- **Coluna de ID**: texto usado como nome base dos arquivos `.mop`/`.out` da molécula.
+  Os valores devem ser únicos e válidos como nome de arquivo no Windows. O nó falha
+  com mensagem explicativa se houver valores duplicados, ausentes, vazios, com
+  caracteres inválidos (`<>:"/\|?*` ou caracteres de controle), nomes reservados do
+  Windows (`CON`, `NUL`, `COM1`...) ou terminados em espaço/ponto.
+- **Coluna de Molécula**: estrutura molecular no formato SDF ou MOL. Linhas com a
+  molécula vazia são puladas com aviso no log (a linha permanece na saída com valores
+  ausentes).
+
+---
+
+## Tabela de Saída (Output)
+Uma linha por molécula de entrada, **na mesma ordem da tabela de entrada**. Colunas:
+
+- Coluna de ID (mesmo nome da coluna selecionada) — String (os IDs são os nomes base
+  dos arquivos gerados).
+- `Molecule (MOPAC)` — SDF. A estrutura otimizada pelo MOPAC, convertida do `.out`
+  pelo OpenBabel. **Atenção:** as coordenadas são as otimizadas, mas a tabela de
+  ligações é adivinhada pelas distâncias e pode estar errada — e cargas formais são
+  perdidas (um nitrogênio quaternário deixa de ser quaternário). Use o nó MOPAC
+  Structure Correction para corrigir.
+- `FINAL HEAT OF FORMATION (KCAL/MOL)` — Double
+- `COSMO AREA (SQUARE ANGSTROMS)` — Double
+- `COSMO VOLUME (CUBIC ANGSTROMS)` — Double
+- `GRADIENT NORM` — Double
+- `IONIZATION POTENTIAL (EV)` — Double
+- `HOMO (EV)` — Double (usa o par ALPHA SOMO/LUMO para moléculas open-shell; BETA
+  somente quando ALPHA está ausente)
+- `LUMO (EV)` — Double (mesma regra do HOMO)
+
+Moléculas que falharem em qualquer etapa (conversão, cálculo ou extração) permanecem
+na tabela com valores ausentes em todas as colunas de resultado — a falha é registrada
+no log do KNIME e não interrompe o restante do lote.
+
+**Observação:** a saída **não** repassa as demais colunas da tabela de entrada. Se
+precisar delas, junte a saída à tabela original por ID (nó Joiner), ou use a própria
+tabela original como entrada 2 do Structure Correction.
+
+---
+
+## Configurações do Nó (Parâmetros)
+
+1. **OpenBabel executable**
+   - Caminho para o `obabel.exe`.
+   - Valor padrão: vazio.
+   - Ordem de busca: caminho configurado → `obabel`/`babel` no PATH →
+     `C:\babel\OpenBabel-3.1.1\obabel.exe`.
+
+2. **MOPAC executable**
+   - Caminho para o `mopac.exe`.
+   - Valor padrão: vazio (busca `mopac` no PATH ou usa `C:\mopac\bin\mopac.exe`).
+
+3. **MOPAC keywords**
+   - Texto que substitui `PUT KEYWORDS HERE` nos arquivos `.mop` gerados pelo OpenBabel.
+   - Valor padrão: vazio.
+   - Aplicadas somente quando um `.mop` novo é gerado: arquivos reutilizados mantêm as
+     keywords com que foram criados. Para recalcular com keywords novas, apague os
+     arquivos ou marque "Delete saved files before running".
+   - Exemplo de uso: `PM7 MMOK XYZ CHECK BONDS GNORM=0.1`
+
+4. **Output folder**
+   - Pasta onde os arquivos `.mop` e `.out` são escritos.
+   - Valor padrão: vazio.
+   - Caminhos relativos são resolvidos dentro da área de dados do workflow atual.
+     Recomenda-se configurar uma subpasta dedicada (ex.: `saida`).
+   - Se houver mais de uma instância deste nó no mesmo workflow, dê a cada uma sua
+     própria pasta — a pasta é de uso exclusivo de um nó.
+
+5. **Delete saved files before running**
+   - Valor padrão: desmarcado.
+   - Quando marcado, esvazia a pasta de saída antes de rodar e recalcula tudo. A pasta
+     deve ser de uso exclusivo deste nó. Por segurança, o nó se recusa a rodar com esta
+     opção marcada se "Output folder" estiver vazio — caso contrário a área de dados
+     inteira do workflow seria apagada.
+   - Quando desmarcado, arquivos `.mop` e `.out` existentes são reutilizados e apenas
+     os resultados faltantes são calculados.
+
+6. **Parallel MOPAC processes**
+   - Número máximo de processos simultâneos (vale para OpenBabel e MOPAC).
+   - Valor padrão: `1` (mínimo 1).
+
+7. **ID column**
+   - Seleção (dropdown) da coluna de identificador na tabela de entrada.
+
+8. **Molecule column**
+   - Seleção (dropdown) da coluna com a estrutura molecular.
+
+9. **Input molecule format**
+   - Formato da coluna de molécula passado ao OpenBabel.
+   - Opções: `sdf`, `mol`. Valor padrão: `sdf`.
+
+---
+
+## Como funciona internamente
+
+1. Valida as colunas selecionadas e os IDs (unicidade e validade como nome de arquivo).
+2. Resolve e cria o diretório de saída; se "Delete saved files before running" estiver
+   marcado, esvazia a pasta.
+3. **Fase 1 — Conversão (OpenBabel, paralela):** para cada linha, salva a estrutura em
+   arquivo temporário e converte para `.mop`, inserindo as keywords MOPAC. Arquivos
+   `.mop` existentes e não vazios são reutilizados; se o `.out` já existe, a conversão
+   e o cálculo são pulados.
+4. **Fase 2 — Cálculo (MOPAC, paralela):** executa o MOPAC para cada `.mop` que ainda
+   não tem `.out`. Falhas são registradas no log e a molécula é pulada.
+5. **Fase 3 — Extração (paralela):** converte cada `.out` para SDF com OpenBabel
+   (coluna `Molecule (MOPAC)`) e extrai as propriedades via expressões regulares.
+6. **Montagem final:** monta a tabela de resultados com uma linha por molécula de
+   entrada, na ordem original; moléculas sem resultado ficam com valores ausentes.
+7. **Cancelamento:** em qualquer fase, os processos em execução são encerrados e os
+   arquivos parciais (`.out`, `.arc`, `.end`) são removidos.
+
+Observação técnica: apenas a thread principal se comunica com o contexto de execução do
+KNIME (progresso e verificação de cancelamento); as threads de trabalho usam um Event
+compartilhado, garantindo thread-safety.
+
+---
+
+## Cache de arquivos: comportamento intencional
+
+Arquivos `.mop` e `.out` existentes na pasta de saída são **sempre reaproveitados**,
+mesmo que as keywords do MOPAC tenham mudado desde que foram gerados. Isso é
+deliberado: permite reexecutar o nó calculando apenas o que falta, em lotes grandes.
+
+Para recalcular com keywords novas, marque "Delete saved files before running" ou
+aponte para uma pasta de saída diferente.
+
+---
+
+## Testes
+
+Testes unitários das funções puras (montagem da tabela de resultados, ordem das
+linhas, valores ausentes, resolução HOMO/LUMO, validação de IDs) estão em
+`tests\test_batch_geometry_optimizer.py` e rodam sem o KNIME:
+
+    C:\Users\eborba\.conda\envs\topoq-env\python.exe tests\test_batch_geometry_optimizer.py
+
+---
+
+## Requisitos e Instalação
+
+1. Ambiente Conda configurado: `C:\Users\eborba\.conda\envs\topoq-env`
+2. Extensão registrada no `config.yml` do projeto
+   (`br.com.eborba.knime.topoq`), referenciado no `knime.ini` pelo argumento VM:
+   `-Dknime.python.extension.config=C:/Users/eborba/Documents/TopoQ - Knime/config.yml`
+3. Reinicie o KNIME.
+4. MOPAC disponível no PATH ou em `C:\mopac\bin\mopac.exe`.
+5. OpenBabel disponível no PATH ou configurado no diálogo do nó.
+6. Feature KNIME Chemistry Types (`org.knime.features.chem.types`) instalada para
+   suporte ao tipo SDF na coluna de molécula.
+
+Para instalação em outra máquina a partir do pacote compilado, veja
+`Documentação - Compilação para KNIME 5.4.txt`. MOPAC e OpenBabel **não** são
+distribuídos com a extensão e precisam ser instalados separadamente na máquina de
+destino.
+
+---
+
+## Histórico de Versões
+
+- **Extensão TopoQ 0.1.0** — os três nós passam a ser distribuídos como uma única
+  extensão, na categoria Community Nodes → TopoQ. O código do nó não mudou; apenas a
+  categoria deixou de ser a raiz `/community`.
+- **0.1.0** (extensão `mopac_extension_2`, descontinuada) — Versão inicial. Criado a
+  partir da divisão do nó único da extensão `mopac_extension` (hoje removida do
+  projeto) em dois nós: este (cálculo) e o Structure Correction (correção de
+  estrutura).
+
+### Predecessor: o nó único da extensão `mopac_extension` (removida)
+
+Fazia cálculo e correção em um único nó, devolvendo **todas as colunas da tabela de
+entrada** com a coluna de molécula já corrigida. Diferença de comportamento que vale
+registrar: quando o número de átomos divergia entre a estrutura MOPAC e a original, ele
+mantinha as **coordenadas originais**; os nós atuais deixam a célula de molécula
+**vazia**, para não devolver silenciosamente uma estrutura não otimizada.
+
+- **0.2.0** — Colunas `COSMO AREA`/`COSMO VOLUME` renomeadas para
+  `(SQUARE ANGSTROMS)`/`(CUBIC ANGSTROMS)`; seleção de colunas por dropdown; validação
+  de IDs (unicidade e nome de arquivo válido); falha de uma molécula não aborta mais o
+  lote (log + valores ausentes); proteção contra esvaziar a área de dados do workflow;
+  cancelamento uniforme nas três fases; mensagens em inglês; refatoração interna e
+  testes unitários.
+- **0.1.0** — Versão inicial.

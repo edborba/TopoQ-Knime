@@ -1,0 +1,180 @@
+# Documentação: Structure Correction (Extensão KNIME)
+
+## Visão Geral
+O nó **Structure Correction** é um dos três nós da extensão **TopoQ**,
+desenvolvida em Python, e reconstrói estruturas otimizadas pelo MOPAC sobre a tabela
+de ligações correta das moléculas originais. Tem **duas entradas**.
+
+**Por que a correção é necessária:** os arquivos `.mop`/`.out` do MOPAC carregam
+apenas coordenadas XYZ — não carregam informação de ligação, carga ou estereoquímica.
+Quando o OpenBabel converte um `.out` para SDF (a coluna `Molecule (MOPAC)` do nó
+Batch Geometry Optimizer), ele precisa **adivinhar** a tabela de ligações só pela distância 3D
+entre os átomos. Essa adivinhação pode errar — por exemplo, atribuir um hidrogênio ao
+átomo vizinho errado — e, principalmente, **perde as cargas formais**: um nitrogênio
+quaternário deixa de ser quaternário, e a estrutura resultante fica quimicamente
+errada, sem que nenhum erro seja emitido.
+
+Este nó resolve isso invertendo a lógica: em vez de tentar reconstruir a molécula a
+partir das coordenadas, ele parte da estrutura **original** (com ligações,
+estereoquímica e cargas corretas) e substitui apenas as coordenadas pelas otimizadas
+do MOPAC.
+
+**Fluxo típico:**
+
+    Tabela original ──> Batch Geometry Optimizer ──> Structure Correction (entrada 1) ──> Bond Distance Checker
+    Tabela original ───────────────────────> Structure Correction (entrada 2)
+
+**Importante:** por preservar o grafo original, este nó também **mascara** otimizações
+que realmente falharam — uma geometria destruída continuaria "parecendo" correta.
+Por isso o **Bond Distance Checker** deve ser ligado depois dele, e não é opcional.
+
+**Detalhes da Extensão**
+- **Nome do nó:** Structure Correction
+- **Extensão:** TopoQ (`br.com.eborba.knime.topoq`)
+- **Categoria no KNIME:** Community Nodes → TopoQ
+- **Pasta do projeto:** `topoq`
+- **Arquivo do nó:** `structure_correction.py`
+- **Versão da extensão:** 0.1.0
+- **Autor:** eborba
+
+---
+
+## Tabelas de Entrada (Inputs)
+
+**Entrada 1 — MOPAC Results**
+- Tabela com as estruturas otimizadas pelo MOPAC e uma coluna de ID — tipicamente a
+  saída do nó **Batch Geometry Optimizer**, mas pode ser qualquer tabela com ID + estrutura
+  SDF otimizada.
+- É esta tabela que define a saída do nó: todas as suas colunas e sua ordem de linhas
+  são preservadas.
+
+**Entrada 2 — Original Molecules (referência)**
+- Tabela com as estruturas **originais** (ligações, estereoquímica e cargas corretas)
+  e a mesma chave de ID.
+- Usada **apenas como referência**: o nó lê somente as colunas de ID e de molécula
+  selecionadas. Nenhuma outra coluna desta tabela é usada nem passa para a saída.
+- IDs duplicados nesta tabela tornam a referência ambígua: as moléculas afetadas não
+  são corrigidas (célula vazia na saída, com aviso no log).
+
+Não há problema em as duas tabelas terem colunas com os mesmos nomes — as colunas da
+entrada 2 nunca vão para a saída.
+
+---
+
+## Tabela de Saída (Output)
+A saída é a **tabela da entrada 1, coluna por coluna e na mesma ordem de linhas**, com
+uma única mudança: a coluna de molécula selecionada passa a conter a **estrutura
+corrigida** — a tabela de ligações da molécula original com as coordenadas otimizadas
+do MOPAC — no tipo SDF canônico (`SdfValue`).
+
+Casos em que a correção não é possível deixam a **célula de molécula vazia**
+(missing), mantendo o restante da linha (ID, propriedades, etc.) intacto:
+
+| Situação | Resultado | Log |
+|---|---|---|
+| ID sem correspondência na tabela original (ou molécula original vazia) | Célula vazia | `ID "X" has no molecule in the original table; molecule cell left empty.` |
+| ID duplicado na tabela original (referência ambígua) | Célula vazia | `ID "X" appears more than once in the original table; molecule cell left empty.` |
+| Número de átomos divergente entre as duas estruturas | Célula vazia | `ID "X": atom count differs...; molecule cell left empty.` |
+| Estrutura MOPAC já vazia na entrada 1 | Célula vazia | (sem aviso — não havia o que corrigir) |
+
+Nenhum desses casos interrompe a execução; o motivo de cada célula vazia fica no log
+do KNIME (View → Open KNIME log ou o console).
+
+---
+
+## Configurações do Nó (Parâmetros)
+
+1. **ID column (MOPAC results)**
+   - Seleção (dropdown) da coluna de identificador na **entrada 1**.
+
+2. **MOPAC molecule column**
+   - Seleção (dropdown) da coluna com a estrutura otimizada pelo MOPAC na
+     **entrada 1** (ex.: `Molecule (MOPAC)` na saída do Batch Geometry Optimizer).
+
+3. **ID column (original)**
+   - Seleção (dropdown) da coluna de identificador na **entrada 2**.
+
+4. **Molecule column (original)**
+   - Seleção (dropdown) da coluna com a estrutura SDF original na **entrada 2**.
+
+Os quatro parâmetros são obrigatórios; o nó indica erro na configuração se alguma
+coluna selecionada deixar de existir na respectiva tabela.
+
+---
+
+## Como funciona internamente
+
+1. Monta um dicionário de referência `ID → estrutura original` a partir da entrada 2
+   (comparação de IDs como texto). IDs repetidos são marcados como ambíguos.
+2. Para cada linha da entrada 1:
+   - Extrai as coordenadas e os elementos do bloco de átomos da estrutura MOPAC
+     (regex sobre o formato SDF V2000).
+   - Localiza a estrutura original pelo ID; confere se o número de átomos é o mesmo
+     nas duas estruturas.
+   - Substitui, linha a linha do bloco de átomos, apenas os campos de coordenadas na
+     estrutura original — os campos restantes de cada linha de átomo (carga, estéreo,
+     etc.), a linha de contagem e o bloco de ligações ficam intactos.
+3. Devolve a tabela da entrada 1 com a coluna de molécula substituída pelas
+   estruturas corrigidas, reempacotadas como `knime.types.chemistry.SdfValue`
+   (células não corrigidas ficam vazias).
+4. O `configure()` declara o schema de saída como o schema da entrada 1 com a coluna
+   de molécula no tipo SDF canônico, garantindo que o spec declarado bata com o
+   produzido na execução.
+
+**Nota de projeto:** a reescrita é feita *in loco* sobre o texto do SDF, por colunas
+fixas — tudo que não é coordenada permanece byte a byte idêntico ao original. Um
+round-trip por um toolkit de química renormalizaria o registro, reintroduzindo
+justamente a classe de alteração que este nó existe para evitar.
+
+**Limitação conhecida:** o pareamento entre os átomos das duas estruturas é
+**posicional** (o i-ésimo átomo de uma corresponde ao i-ésimo da outra), e apenas a
+contagem total de átomos é validada. Se alguma etapa da conversão reordenar os átomos,
+o resultado sairia errado sem aviso. Uma verificação do símbolo do elemento índice a
+índice está prevista.
+
+---
+
+## Testes
+
+Testes unitários das funções puras (extração/aplicação de coordenadas, saída baseada
+na tabela 2, células vazias nos casos de falha, colunas com nomes repetidos entre as
+tabelas) estão em `tests\test_structure_correction.py` e rodam sem o KNIME:
+
+    C:\Users\eborba\.conda\envs\topoq-env\python.exe tests\test_structure_correction.py
+
+---
+
+## Requisitos e Instalação
+
+1. Ambiente Conda configurado: `C:\Users\eborba\.conda\envs\topoq-env`
+2. Extensão registrada no `config.yml` do projeto
+   (`br.com.eborba.knime.topoq`), referenciado no `knime.ini` pelo
+   argumento VM:
+   `-Dknime.python.extension.config=C:/Users/eborba/Documents/TopoQ - Knime/config.yml`
+3. Reinicie o KNIME.
+4. Feature KNIME Chemistry Types (`org.knime.features.chem.types`) instalada para
+   suporte ao tipo SDF nas colunas de molécula.
+5. Este nó não executa MOPAC nem OpenBabel — não precisa de nenhum dos dois
+   instalados.
+
+Para instalação em outra máquina a partir do pacote compilado, veja
+`Documentação - Compilação para KNIME 5.4.txt`.
+
+---
+
+## Histórico de Versões
+
+- **Extensão TopoQ 0.1.0** — os três nós passam a ser distribuídos como uma única
+  extensão, na categoria Community Nodes → TopoQ. O código do nó não mudou; apenas a
+  categoria deixou de ser a raiz `/community`.
+- **Ordem das entradas invertida** — MOPAC Results passou da entrada 2 para a
+  **entrada 1**, e Original Molecules da entrada 1 para a **entrada 2**. A entrada 1
+  agora é a tabela que define a saída, o que deixa a porta principal alinhada com o
+  fluxo de dados. **Mudança incompatível:** workflows salvos com a ordem antiga
+  precisam ter as duas conexões trocadas.
+- **0.1.0** (extensão `correcao_estrutura`, descontinuada) — Versão inicial. Criado a
+  partir da divisão do nó único da extensão `mopac_extension` (hoje removida do
+  projeto) em dois nós: o Batch Geometry Optimizer (cálculo) e este (correção de estrutura). A
+  saída é a tabela de resultados MOPAC com a estrutura corrigida; a tabela original é
+  usada apenas como referência de ligações; casos não corrigíveis produzem célula de
+  molécula vazia com aviso no log.

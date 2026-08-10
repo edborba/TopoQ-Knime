@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Saídas de cálculo do MOPAC
+*.mop
+*.out
+*.arc
+*.aux
+*.den
+*.res
+*.end
+mopac_calc/
+
+# Ferramentas internas de apoio — não fazem parte da extensão distribuída
+ferramentas/
+
+# Documentos que ficam fora do repositório público:
+# o artigo é material de terceiros e o plano é documento de trabalho interno.
+documentos/allen1987.pdf
+documentos/Plano - Programa Desktop.md
+documentos/pure_python_node_extensions_guide.pdf
+
+# Editores
+.idea/
+.vscode/
+
+# Atenção: topoq_build_5.4/ NÃO é ignorado de propósito — é o update site
+# que o KNIME consome para instalar a extensão, então precisa ficar versionado.

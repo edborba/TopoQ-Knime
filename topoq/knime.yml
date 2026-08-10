@@ -1,0 +1,15 @@
+name: topoq
+author: eborba
+# Build alvo KNIME 5.4: bundler 5.4 usa env_yml_path (environment.yml).
+# Para compilar para o KNIME mais recente, troque de volta para
+# "pixi_toml_path: pixi.toml" e use o bundler novo (>=5.11).
+env_yml_path: environment.yml
+extension_module: topoq
+description: TopoQ
+long_description: KNIME Python extension with the complete topology-preserving semiempirical geometry workflow. Batch Geometry Optimizer runs MOPAC calculations from input molecule text and outputs the optimized structures and selected properties; Bond Distance Checker flags molecules with suspicious bond distances, which may indicate a failed geometry optimization; Structure Correction re-applies the optimized coordinates onto the original bond tables, preserving stereochemistry and charges.
+group_id: br.com.eborba.knime
+version: 0.1.0
+vendor: eborba
+license_file: LICENSE.txt
+feature_dependencies:
+  - org.knime.features.chem.types

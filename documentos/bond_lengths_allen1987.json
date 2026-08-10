@@ -1,0 +1,129 @@
+{
+  "source": {
+    "citation": "Allen, F. H.; Kennard, O.; Watson, D. G.; Brammer, L.; Orpen, A. G.; Taylor, R. (1987). \"Tables of Bond Lengths Determined by X-Ray and Neutron Diffraction. Part 1. Bond Lengths in Organic Compounds.\" Journal of the Chemical Society, Perkin Transactions 2, S1-S19.",
+    "doi": "10.1039/P298700000S1",
+    "local_file": "allen1987.pdf",
+    "note": "This JSON is a curated subset of the original table (which has 682 entries across 65 element pairs, many for very specific substructures like individual ring systems or conjugation states). Only the most general / '(overall)' entries are included here, since a bond-distance sanity checker working from a SDF/MOL file only knows element pair + bond order, not the detailed local chemical context the full paper distinguishes."
+  },
+  "units": "angstrom",
+  "fields": {
+    "element1": "first element symbol (alphabetically first, per the paper's ordering convention)",
+    "element2": "second element symbol",
+    "order": "1 = single, 2 = double, 3 = triple, 'ar' = aromatic/delocalized (paper's '~' symbol)",
+    "context": "substructure label as given in the paper (kept for traceability)",
+    "mean": "d, unweighted sample mean bond length (Angstrom)",
+    "std_dev": "sigma, sample standard deviation (Angstrom)",
+    "n": "number of observations the average is based on"
+  },
+  "bonds": [
+    {"element1": "C", "element2": "C", "order": 1, "context": "Csp3-Csp3, C*-C* (overall)", "mean": 1.530, "std_dev": 0.015, "n": 5777},
+    {"element1": "C", "element2": "C", "order": 1, "context": "Csp3-Csp2 (allylic), C*-C=C (overall)", "mean": 1.507, "std_dev": 0.015, "n": 1456},
+    {"element1": "C", "element2": "C", "order": 1, "context": "Csp3-Car (benzylic), C*-Car (overall)", "mean": 1.513, "std_dev": 0.014, "n": 1813},
+    {"element1": "C", "element2": "C", "order": 1, "context": "Csp3-Csp1 (propargylic), C*-C#C", "mean": 1.466, "std_dev": 0.010, "n": 88},
+    {"element1": "C", "element2": "C", "order": 1, "context": "Csp2-Csp2 single bond, C=C-C=C (overall)", "mean": 1.460, "std_dev": 0.015, "n": 38},
+    {"element1": "C", "element2": "C", "order": 1, "context": "Csp2-Car, C=C-Car (overall)", "mean": 1.488, "std_dev": 0.012, "n": 87},
+    {"element1": "C", "element2": "C", "order": 1, "context": "Car-Car (biphenyls, ortho subst. all H)", "mean": 1.487, "std_dev": 0.007, "n": 30},
+    {"element1": "C", "element2": "C", "order": 1, "context": "Car-Csp1, Car-C#C", "mean": 1.434, "std_dev": 0.006, "n": 37},
+    {"element1": "C", "element2": "C", "order": 1, "context": "Csp1-Csp1, C#C-C#C", "mean": 1.377, "std_dev": 0.012, "n": 21},
+    {"element1": "C", "element2": "C", "order": 2, "context": "Csp2=Csp2, (C*,H)2-C=C-(C*,H)2 (overall)", "mean": 1.322, "std_dev": 0.014, "n": 493},
+    {"element1": "C", "element2": "C", "order": 3, "context": "Csp1#Csp1, X-C#C-X (overall)", "mean": 1.183, "std_dev": 0.014, "n": 119},
+    {"element1": "C", "element2": "C", "order": "ar", "context": "Car~Car in phenyl rings, C~C (overall)", "mean": 1.384, "std_dev": 0.013, "n": 3264},
+
+    {"element1": "C", "element2": "H", "order": 1, "context": "Csp3-H, X2,3-C-H (primary and secondary)", "mean": 1.094, "std_dev": 0.011, "n": 348},
+    {"element1": "C", "element2": "H", "order": 1, "context": "Csp3-H, C-CH3 (methyl)", "mean": 1.059, "std_dev": 0.030, "n": 83},
+    {"element1": "C", "element2": "H", "order": 1, "context": "Csp2-H, vinyl/alkynyl C-H", "mean": 1.077, "std_dev": 0.012, "n": 14},
+    {"element1": "C", "element2": "H", "order": "ar", "context": "Car-H aromatic", "mean": 1.083, "std_dev": 0.011, "n": 918},
+
+    {"element1": "C", "element2": "N", "order": 1, "context": "Csp3-Nsp3 (amine), C*-Nsp3 (overall)", "mean": 1.469, "std_dev": 0.014, "n": 1201},
+    {"element1": "C", "element2": "N", "order": 1, "context": "Csp3-Nsp2 (acyclic amide), C*-NH-C=O", "mean": 1.454, "std_dev": 0.011, "n": 78},
+    {"element1": "C", "element2": "N", "order": 1, "context": "Csp3-N+ (quaternary/ammonium), C*-N+ (overall)", "mean": 1.499, "std_dev": 0.018, "n": 1370},
+    {"element1": "C", "element2": "N", "order": 1, "context": "Csp2-Nsp2 (acyclic amide carbonyl-N), NH2-C=O", "mean": 1.325, "std_dev": 0.009, "n": 32},
+    {"element1": "C", "element2": "N", "order": 1, "context": "Car-NH2 (overall, aniline-type)", "mean": 1.375, "std_dev": 0.025, "n": 98},
+    {"element1": "C", "element2": "N", "order": 1, "context": "Car-NH-C# (overall, secondary aryl amine)", "mean": 1.380, "std_dev": 0.032, "n": 31},
+    {"element1": "C", "element2": "N", "order": 2, "context": "Csp2=N (oxime), (C,H)2-C=N-OH (overall)", "mean": 1.281, "std_dev": 0.013, "n": 67},
+    {"element1": "C", "element2": "N", "order": 3, "context": "Csp1#N, C*-C#N (nitrile)", "mean": 1.136, "std_dev": 0.010, "n": 140},
+    {"element1": "C", "element2": "N", "order": 3, "context": "Csp1#N, Car-C#N (aryl nitrile)", "mean": 1.138, "std_dev": 0.007, "n": 31},
+    {"element1": "C", "element2": "N", "order": "ar", "context": "Car~N (pyridine-type aromatic ring)", "mean": 1.337, "std_dev": 0.012, "n": 269},
+
+    {"element1": "C", "element2": "O", "order": 1, "context": "Csp3-OH (alcohol), C*-OH (overall)", "mean": 1.432, "std_dev": 0.013, "n": 464},
+    {"element1": "C", "element2": "O", "order": 1, "context": "Csp3-O-Csp3 (dialkyl ether), C*-O-C* (overall)", "mean": 1.426, "std_dev": 0.019, "n": 236},
+    {"element1": "C", "element2": "O", "order": 1, "context": "Csp3-O-Car (aryl alkyl ether), C*-O-Car (overall)", "mean": 1.429, "std_dev": 0.018, "n": 917},
+    {"element1": "C", "element2": "O", "order": 1, "context": "Csp3-O-C(=O) (ester alkyl-O), C*-O-C(=O)-C* (overall)", "mean": 1.450, "std_dev": 0.014, "n": 314},
+    {"element1": "C", "element2": "O", "order": 1, "context": "Csp2-OH (enol)", "mean": 1.333, "std_dev": 0.017, "n": 53},
+    {"element1": "C", "element2": "O", "order": 1, "context": "Csp2-C(=O)-O-Csp3 (ester carbonyl-O), C*-C(=O)-O-C* (overall)", "mean": 1.336, "std_dev": 0.014, "n": 551},
+    {"element1": "C", "element2": "O", "order": 1, "context": "Car-OH (phenol)", "mean": 1.362, "std_dev": 0.015, "n": 551},
+    {"element1": "C", "element2": "O", "order": 1, "context": "Car-O-Car (diaryl ether)", "mean": 1.384, "std_dev": 0.014, "n": 132},
+    {"element1": "C", "element2": "O", "order": 2, "context": "Csp2=O, aldehyde C*-CH=O", "mean": 1.192, "std_dev": 0.005, "n": 7},
+    {"element1": "C", "element2": "O", "order": 2, "context": "Csp2=O, ketone (C*)2-C=O", "mean": 1.210, "std_dev": 0.008, "n": 474},
+    {"element1": "C", "element2": "O", "order": 2, "context": "Csp2=O, carboxylic acid C*-C(=O)-OH", "mean": 1.214, "std_dev": 0.019, "n": 175},
+    {"element1": "C", "element2": "O", "order": 2, "context": "Csp2=O, ester C*-C(=O)-O-C*", "mean": 1.196, "std_dev": 0.010, "n": 551},
+    {"element1": "C", "element2": "O", "order": 2, "context": "Csp2=O, acyclic amide NH2-C(-C*)=O", "mean": 1.234, "std_dev": 0.012, "n": 32},
+    {"element1": "C", "element2": "O", "order": 2, "context": "Csp2=O, Car-C=O (aryl ketone)", "mean": 1.221, "std_dev": 0.010, "n": 28},
+
+    {"element1": "C", "element2": "S", "order": 1, "context": "Csp3-S-Csp3 (thioether), C*-S-C* (overall)", "mean": 1.819, "std_dev": 0.019, "n": 242},
+    {"element1": "C", "element2": "S", "order": 1, "context": "Csp3-SH (thiol), C*-SH", "mean": 1.808, "std_dev": 0.010, "n": 6},
+    {"element1": "C", "element2": "S", "order": 1, "context": "Car-S-Csp3 (aryl thioether), Car-S-C*", "mean": 1.773, "std_dev": 0.009, "n": 96},
+    {"element1": "C", "element2": "S", "order": 2, "context": "Csp2=S, thioketone/thioamide (X)2-C=S (X = C,N,O,S)", "mean": 1.671, "std_dev": 0.024, "n": 245},
+    {"element1": "C", "element2": "S", "order": "ar", "context": "Car~S in thiophene-type ring (Csp2-S(2) aromatic)", "mean": 1.741, "std_dev": 0.011, "n": 88},
+
+    {"element1": "C", "element2": "F", "order": 1, "context": "Csp3-F, F-C*-C*-F (overall)", "mean": 1.386, "std_dev": 0.007, "n": 70},
+    {"element1": "C", "element2": "F", "order": 1, "context": "Csp2-F, C=C-F (C,H,N,O subst.)", "mean": 1.340, "std_dev": 0.013, "n": 34},
+    {"element1": "C", "element2": "F", "order": 1, "context": "Car-F (mono-F + m,p-F2)", "mean": 1.363, "std_dev": 0.008, "n": 38},
+
+    {"element1": "C", "element2": "Cl", "order": 1, "context": "Csp3-Cl, C-CH2-Cl", "mean": 1.790, "std_dev": 0.007, "n": 13},
+    {"element1": "C", "element2": "Cl", "order": 1, "context": "Csp2-Cl, C=C-Cl (C,H,N,O subst. on C)", "mean": 1.734, "std_dev": 0.019, "n": 63},
+    {"element1": "C", "element2": "Cl", "order": 1, "context": "Car-Cl (mono-Cl + m,p-Cl2)", "mean": 1.739, "std_dev": 0.010, "n": 340},
+
+    {"element1": "Br", "element2": "C", "order": 1, "context": "Br-C*", "mean": 1.966, "std_dev": 0.029, "n": 100},
+    {"element1": "Br", "element2": "C", "order": "ar", "context": "Br-Car (mono-Br + m,p-Br2)", "mean": 1.899, "std_dev": 0.012, "n": 119},
+
+    {"element1": "C", "element2": "I", "order": 1, "context": "Csp3-I, C*-I", "mean": 2.162, "std_dev": 0.015, "n": 15},
+    {"element1": "C", "element2": "I", "order": "ar", "context": "Car-I", "mean": 2.095, "std_dev": 0.015, "n": 51},
+
+    {"element1": "H", "element2": "N", "order": 1, "context": "secondary amine N-H, X2-N-H", "mean": 1.009, "std_dev": 0.019, "n": 95},
+    {"element1": "H", "element2": "N", "order": 1, "context": "ammonium N-H, X3-N+-H", "mean": 1.033, "std_dev": 0.022, "n": 87},
+
+    {"element1": "H", "element2": "O", "order": 1, "context": "alcohol O-H, C*-O-H", "mean": 0.967, "std_dev": 0.010, "n": 63},
+    {"element1": "H", "element2": "O", "order": 1, "context": "carboxylic acid O-H, C#-O-H", "mean": 0.967, "std_dev": 0.010, "n": 73},
+
+    {"element1": "N", "element2": "N", "order": 1, "context": "N(3)-N(3) hydrazine-type (overall)", "mean": 1.425, "std_dev": 0.027, "n": 139},
+    {"element1": "N", "element2": "N", "order": 2, "context": "azo C#-N=N-C# (overall)", "mean": 1.240, "std_dev": 0.012, "n": 27},
+    {"element1": "N", "element2": "N", "order": "ar", "context": "N~N aromatic in pyridazine", "mean": 1.336, "std_dev": null, "n": null},
+
+    {"element1": "N", "element2": "O", "order": 1, "context": "hydroxylamine (C,H)2-N-OH (Nsp2 planar)", "mean": 1.396, "std_dev": 0.012, "n": 28},
+    {"element1": "N", "element2": "O", "order": 2, "context": "nitro group C-NO2 (overall)", "mean": 1.218, "std_dev": 0.013, "n": 1733},
+    {"element1": "N", "element2": "O", "order": 2, "context": "nitrate ion N(3)=O(1)", "mean": 1.239, "std_dev": 0.020, "n": 105},
+
+    {"element1": "O", "element2": "S", "order": 2, "context": "sulfone/sulfonyl O=S, C-SO2-C (C*=CH3 excluded)", "mean": 1.436, "std_dev": 0.010, "n": 316},
+    {"element1": "O", "element2": "S", "order": 2, "context": "sulfoxide O=S, C-S(=O)-C", "mean": 1.497, "std_dev": 0.013, "n": 90},
+    {"element1": "O", "element2": "S", "order": 2, "context": "sulfate ion, in SO4(2-)", "mean": 1.472, "std_dev": 0.013, "n": 104},
+
+    {"element1": "O", "element2": "P", "order": 1, "context": "phosphate ester C-O-P(~O)3(2-) (delocalized)", "mean": 1.589, "std_dev": null, "n": null},
+    {"element1": "O", "element2": "P", "order": 2, "context": "phosphoryl P=O, C3-P=O", "mean": 1.449, "std_dev": 0.007, "n": 18},
+
+    {"element1": "N", "element2": "P", "order": 1, "context": "phosphazene/phosphoramide P-N, X2-P(=X)-NX2 (overall)", "mean": 1.662, "std_dev": 0.029, "n": 358},
+
+    {"element1": "C", "element2": "Si", "order": 1, "context": "Csp3-Si, C*-Si-X3 (overall)", "mean": 1.863, "std_dev": 0.024, "n": 681},
+    {"element1": "C", "element2": "Si", "order": "ar", "context": "Car-Si, Car-Si-X3", "mean": 1.868, "std_dev": null, "n": 178},
+
+    {"element1": "O", "element2": "Si", "order": 1, "context": "Si-O-C(sp3), X3-Si-O-C#", "mean": 1.645, "std_dev": 0.012, "n": 29},
+    {"element1": "N", "element2": "Si", "order": 1, "context": "Si-N, X3-Si-NX2 (overall)", "mean": 1.748, "std_dev": 0.022, "n": 170},
+
+    {"element1": "C", "element2": "P", "order": 1, "context": "Csp3-P, C2-P(=O)-C* (overall)", "mean": 1.813, "std_dev": 0.017, "n": 84},
+    {"element1": "C", "element2": "P", "order": "ar", "context": "Car-P, C2-P(=O)-Car", "mean": 1.801, "std_dev": 0.011, "n": 98},
+
+    {"element1": "B", "element2": "C", "order": 1, "context": "Csp3-B, n=3-4: B-Csp3 not cages", "mean": 1.597, "std_dev": 0.022, "n": 29},
+    {"element1": "B", "element2": "N", "order": 1, "context": "B-N (B,N coplanar, dative-type), X2-B-N-C2", "mean": 1.404, "std_dev": 0.014, "n": 40},
+    {"element1": "B", "element2": "O", "order": 1, "context": "B-O (anionic, in BO4-)", "mean": 1.468, "std_dev": 0.022, "n": 24},
+    {"element1": "B", "element2": "F", "order": 1, "context": "B-F (neutral boron)", "mean": 1.366, "std_dev": 0.013, "n": 25},
+
+    {"element1": "As", "element2": "C", "order": 1, "context": "As(3)-C, X2-As-Csp3", "mean": 1.963, "std_dev": 0.017, "n": 6},
+    {"element1": "As", "element2": "O", "order": 1, "context": "As(4)-O, (X)2(O=)As-OH", "mean": 1.710, "std_dev": 0.017, "n": 6},
+
+    {"element1": "C", "element2": "Se", "order": 1, "context": "Csp3-Se, C#-Se", "mean": 1.970, "std_dev": 0.032, "n": 21},
+    {"element1": "C", "element2": "Se", "order": "ar", "context": "Csp2-Se aromatic, C=C-Se-C# (tetraselenafulvalene)", "mean": 1.893, "std_dev": 0.013, "n": 32},
+
+    {"element1": "C", "element2": "Te", "order": 1, "context": "Csp3-Te, C#-Te", "mean": 2.158, "std_dev": 0.030, "n": 13},
+    {"element1": "C", "element2": "Te", "order": "ar", "context": "Car-Te", "mean": 2.116, "std_dev": 0.020, "n": 72}
+  ]
+}

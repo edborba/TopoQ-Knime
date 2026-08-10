@@ -1,0 +1,33 @@
+TopoQ — extensão KNIME para otimização de geometria semiempírica com preservação
+de topologia molecular
+
+Copyright (C) 2026 CASE
+
+Tradução de cortesia. O texto com efeito jurídico é o de LICENSE.txt, em inglês.
+
+Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo sob os
+termos da Licença Pública Geral Menor GNU (LGPL), versão 3, publicada pela Free
+Software Foundation, ou — a seu critério — qualquer versão posterior.
+
+Este programa é distribuído na esperança de ser útil, mas SEM NENHUMA GARANTIA;
+sem sequer a garantia implícita de COMERCIABILIDADE ou ADEQUAÇÃO A UM PROPÓSITO
+ESPECÍFICO. Leia a Licença Pública Geral Menor GNU para mais detalhes.
+
+Você deve ter recebido uma cópia da Licença Pública Geral Menor GNU junto com
+este programa. Se não, veja <https://www.gnu.org/licenses/>.
+
+O texto completo da LGPL v3 está em LICENSE-LGPL.txt, e o da GPL v3, que a LGPL
+incorpora por referência, em LICENSE-GPL.txt. Os dois acompanham a extensão.
+
+
+-------------------------------------------------------------------------------
+MOPAC e Open Babel
+-------------------------------------------------------------------------------
+
+MOPAC (Apache-2.0) e Open Babel (GPL-2.0) não são redistribuídos com esta
+extensão. São programas externos, instalados à parte pelo usuário e chamados
+como processos separados — nenhuma biblioteca deles é ligada a este código. Cada
+um vale sob a sua própria licença, que acompanha a sua própria instalação.
+
+Esta extensão não é afiliada aos projetos MOPAC ou Open Babel, nem endossada por
+eles.

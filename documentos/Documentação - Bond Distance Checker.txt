@@ -1,0 +1,192 @@
+# Documentação: Bond Distance Checker (Extensão KNIME)
+
+## Visão Geral
+O nó **Bond Distance Checker** é um dos três nós da extensão **TopoQ**, desenvolvida
+em Python, e verifica a qualidade geométrica de moléculas em formato SDF. Para cada
+molécula, o nó calcula a distância 3D entre todos os pares de átomos ligados e a compara
+com a soma dos raios covalentes dos dois átomos (multiplicada por um fator de tolerância
+configurável). Ligações longas demais — ou curtas demais, indicando átomos colapsados —
+são reportadas como suspeitas.
+
+Este nó é usado no **final** do fluxo, depois da correção de estrutura, para detectar
+otimizações que falharam ou ficaram incompletas, deixando átomos "soltos" — ligações
+fisicamente impossíveis no resultado final.
+
+**Detalhes da Extensão**
+- **Nome do nó:** Bond Distance Checker
+- **Extensão:** TopoQ (`br.com.eborba.knime.topoq`)
+- **Categoria no KNIME:** Community Nodes → TopoQ
+- **Pasta do projeto:** `topoq`
+- **Arquivo do nó:** `bond_distance_checker.py`
+- **Versão da extensão:** 0.1.0
+- **Autor:** eborba
+
+---
+
+## ⚠ Onde conectar este nó: depois da correção, não na saída crua do Runner
+
+Os arquivos `.mop`/`.out` do MOPAC carregam apenas coordenadas XYZ — **não** carregam
+informação de ligação, carga ou estereoquímica. Quando o OpenBabel converte um `.out`
+direto para SDF (`obabel -iout arquivo.out -osdf`, exatamente o que o **Batch Geometry Optimizer**
+faz para produzir a coluna `Molecule (MOPAC)`), ele precisa **adivinhar** a tabela de
+ligações só pela distância 3D entre os átomos, sem nenhuma pista de conectividade real.
+Essa adivinhação pode errar — por exemplo, atribuir um hidrogênio ao átomo vizinho errado
+quando dois átomos ficam parecidos em distância — e também perde cargas formais
+(nitrogênio quaternário deixa de ser quaternário).
+
+Isso gera **falsos positivos** neste nó: a ligação aparece "longa demais" não porque a
+geometria otimizada esteja quebrada, mas porque a tabela de ligações daquela conversão
+crua está errada.
+
+Quem resolve isso é o nó **Structure Correction**, que descarta a tabela de ligações
+inventada pelo OpenBabel e reinsere as coordenadas otimizadas na tabela de ligações
+**original** da molécula de entrada (com carga, estereoquímica e conectividade corretas).
+
+**Regra prática**: conecte o Bond Distance Checker na saída do **MOPAC Structure
+Correction**, nunca diretamente na coluna `Molecule (MOPAC)` do Runner 2.0.
+
+**Por que este nó é obrigatório e não opcional:** como a correção preserva o grafo
+original, ela também **mascara** uma otimização que realmente falhou — a molécula
+continuaria "parecendo" correta mesmo com a geometria destruída. Este nó é o que restaura
+a capacidade de detectar esse caso. Os três nós formam um fluxo fechado: cálculo →
+correção → validação.
+
+**Fluxo típico:**
+
+    Tabela original ──> Batch Geometry Optimizer ──> Structure Correction (entrada 1) ──> Bond Distance Checker
+    Tabela original ───────────────────────> Structure Correction (entrada 2)
+
+---
+
+## Tabela de Entrada (Input)
+A tabela de entrada deve conter:
+- Uma coluna com a estrutura molecular em formato **SDF/MOL**, selecionada no diálogo do
+  nó (parâmetro **Molecule column**, dropdown com as colunas da tabela). Pode vir de
+  qualquer nó que produza essa coluna, incluindo o SDF Reader nativo do KNIME ou a saída
+  do Structure Correction.
+
+O nó aceita a coluna SDF em diferentes representações internas (string pura, o tipo
+`knime.types.chemistry.SdfValue`, ou o tipo legado `SdfAdapterValue` produzido pelo SDF
+Reader nativo) — a extração do texto bruto é feita de forma tolerante a esses formatos, e
+um wrapper problemático nunca derruba a execução (a linha fica como "não verificada").
+
+---
+
+## Tabela de Saída (Output)
+A tabela original é devolvida com três colunas adicionais:
+- `Bond Warning` — Boolean (nullable). `True` se ao menos uma ligação da molécula ficou
+  acima do limite máximo **ou** abaixo do limite mínimo; `False` se todas as ligações
+  verificadas estão dentro dos limites; **ausente (missing)** quando a molécula não pôde
+  ser verificada (célula vazia, formato não suportado como V3000, ou bloco com dados de
+  átomos/ligações inconsistentes). Ausente **não** significa "sem problema".
+- `Max Bond Distance (Å)` — Double. A maior distância de ligação encontrada na molécula
+  (vazio/NaN se a molécula não pôde ser verificada ou não tem ligações).
+- `Long Bonds` — String. Lista (separada por `; `) de cada ligação suspeita, no formato
+  `Elemento1Índice1-Elemento2Índice2: distância Å (max limite Å)` para ligações longas ou
+  `(min limite Å)` para ligações curtas demais.
+
+---
+
+## Configurações do Nó (Parâmetros)
+
+1. **Molecule column**
+   - Seleção (dropdown) da coluna da tabela de entrada que contém a estrutura SDF.
+   - Obrigatório — o nó indica erro na configuração se a coluna selecionada não existir
+     mais na tabela de entrada.
+
+2. **Tolerance factor**
+   - Uma ligação é flagada quando seu comprimento excede `(r1 + r2) × tolerância`, onde
+     r1 e r2 são os raios covalentes dos dois átomos ligados.
+   - Valor padrão: `1.3` (verificação moderadamente rigorosa).
+   - Intervalo permitido: `1.0` a `3.0`.
+
+3. **Short bond factor**
+   - Uma ligação também é flagada quando seu comprimento fica abaixo de
+     `(r1 + r2) × fator`, indicando átomos colapsados ou sobrepostos.
+   - Valor padrão: `0.6`. Use `0.0` para desativar essa verificação.
+   - Intervalo permitido: `0.0` a `1.0`.
+
+---
+
+## Como funciona internamente
+
+1. O nó lê a tabela de entrada como um `pandas.DataFrame` via `to_pandas()`.
+2. Células vazias/ausentes na coluna de molécula são marcadas como "não verificadas"
+   (aviso no log) sem interromper o restante.
+3. Para cada linha, extrai o texto SDF bruto da célula (`_extract_sdf_text`), tentando,
+   nesta ordem: valor já em `str`; `bytes`/`bytearray` decodificados; atributos comuns
+   de objetos "wrapper" (`sdf`, `value`, `mol_block`, etc.); métodos comuns (`get_sdf`,
+   `to_sdf`, etc.); e por fim `str(valor)` como último recurso. Qualquer exceção lançada
+   por um wrapper durante a sondagem é ignorada (tenta-se o próximo candidato). O
+   resultado só é aceito se contiver marcadores típicos de um bloco SDF/MOL (`V2000`,
+   `V3000` ou `M  END`).
+4. Faz o parsing manual do bloco MOL (`_parse_sdf_atoms_and_bonds`): lê a linha de
+   contagem (linha 4 do bloco) para saber o número de átomos e ligações, depois lê as
+   coordenadas XYZ e o elemento de cada átomo (campos de largura fixa, com fallback para
+   `split()`), e os pares de átomos de cada ligação.
+5. Para cada ligação, calcula a distância euclidiana 3D entre os dois átomos e compara
+   com os limites `(r1 + r2) × tolerância` (máximo) e `(r1 + r2) × short bond factor`
+   (mínimo) em `_check_bonds`. Os raios covalentes de referência (escala Alvarez
+   2008/CRC) cobrem ~40 elementos comuns; um elemento fora dessa lista usa um raio
+   padrão de 1.50 Å e é reportado uma única vez no resumo final do log. Se todas as
+   linhas de ligação referenciarem átomos inexistentes (bloco inconsistente), a molécula
+   é marcada como "não verificada" em vez de "sem problema".
+6. As três colunas de resultado (`Bond Warning`, `Max Bond Distance (Å)`,
+   `Long Bonds`) são preenchidas linha a linha com dtypes explícitos (boolean nullable,
+   float64, string), garantindo que o spec bata com o declarado no `configure()` mesmo
+   com tabela vazia.
+7. Antes de devolver a tabela, a coluna SDF é reempacotada explicitamente como
+   `knime.types.chemistry.SdfValue`, garantindo que o tipo declarado em `configure()`
+   bata com o tipo realmente produzido — células de tipos legados (como
+   `SdfAdapterValue`, entregue por leitores nativos de SDF) não fazem round-trip de
+   forma confiável sem essa conversão. Células ausentes permanecem ausentes (não viram
+   a string "nan").
+8. O progresso da execução é reportado a cada ~5% das linhas processadas
+   (`"Checking bonds: X/Y"`).
+9. Mensagens de log (em inglês):
+   - `DEBUG`: tipo da célula SDF detectado na primeira linha (diagnóstico).
+   - `WARNING`: linhas com conteúdo inválido/não verificável (limitado às 10 primeiras
+     ocorrências para não poluir o log), resumo final com totais de moléculas flagadas e
+     não verificadas, e elementos sem raio covalente tabelado.
+
+---
+
+## Testes
+
+Testes unitários das funções puras (parsing V2000, verificação de distâncias, extração
+de texto SDF) estão em `tests\test_bond_distance_checker.py` e rodam sem o KNIME:
+
+    C:\Users\eborba\.conda\envs\topoq-env\python.exe tests\test_bond_distance_checker.py
+
+---
+
+## Requisitos e Instalação
+
+1. Ambiente Conda configurado: `C:\Users\eborba\.conda\envs\topoq-env`
+2. Extensão registrada no `config.yml` do projeto
+   (`br.com.eborba.knime.topoq`), referenciado no `knime.ini` pelo argumento VM:
+   `-Dknime.python.extension.config=C:/Users/eborba/Documents/TopoQ - Knime/config.yml`
+3. Reinicie o KNIME.
+4. Feature KNIME Chemistry Types (`org.knime.features.chem.types`) instalada para suporte
+   completo ao tipo SDF na coluna de moléculas. Sem essa extensão, a coluna de saída cai
+   para o tipo String (com aviso no log).
+5. Este nó não executa MOPAC nem OpenBabel — não precisa de nenhum dos dois instalados.
+
+Para instalação em outra máquina a partir do pacote compilado, veja
+`Documentação - Compilação para KNIME 5.4.txt`.
+
+---
+
+## Histórico de Versões
+
+- **Extensão TopoQ 0.1.0** — os três nós passam a ser distribuídos como uma única
+  extensão, na categoria Community Nodes → TopoQ. O código do nó não mudou; apenas a
+  categoria deixou de ser a raiz `/community`.
+- **0.2.0** (extensão `mopac_bond_checker`, descontinuada) — Seleção da coluna de molécula
+  por dropdown (`ColumnParameter`) com validação no configure; sondagem de wrappers SDF
+  tolerante a qualquer exceção (um valor problemático não derruba mais o nó); células
+  ausentes não viram `SdfValue("nan")`; bloco com todas as ligações inválidas passa a
+  contar como "não verificado"; elementos sem raio tabelado são reportados no log; avisos
+  por linha limitados às 10 primeiras ocorrências; mensagens unificadas em inglês; testes
+  unitários.
+- **0.1.0** — Versão inicial.

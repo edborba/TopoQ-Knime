@@ -1,0 +1,11 @@
+name: topoq-env
+channels:
+  - knime
+  - conda-forge
+dependencies:
+  - python=3.11
+  # Pinado em 5.4 porque o build alvo e o KNIME 5.4 (a versao dos pacotes
+  # knime-* deve corresponder a versao do knime-extension-bundling usada).
+  - knime-python-base=5.4
+  - knime-extension=5.4
+  - pandas

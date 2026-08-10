@@ -1,0 +1,7 @@
+br.com.eborba.knime.topoq:
+  src: C:/Users/eborba/Documents/TopoQ - Knime/topoq
+  # TODO: o ambiente antigo (knime-mopac-env) nao existe mais nesta maquina.
+  # Recrie a partir de topoq/environment.yml (`conda env create -f
+  # topoq/environment.yml`, cria "topoq-env") e aponte o caminho abaixo para ele.
+  conda_env_path: C:/Users/eborba/anaconda3/envs/topoq-env
+  debug_mode: true
