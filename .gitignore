@@ -24,6 +24,9 @@ documentos/allen1987.pdf
 documentos/Plano - Programa Desktop.md
 documentos/pure_python_node_extensions_guide.pdf
 
+# Pacotes zipados — vão como anexo do release no GitHub, não para o repositório
+*.zip
+
 # Editores
 .idea/
 .vscode/
