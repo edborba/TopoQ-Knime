@@ -190,9 +190,17 @@ def _build_results_table(ordered_ids: list[str], results: pd.DataFrame, id_col: 
         output[col] = pd.to_numeric(output[col], errors="coerce")
 
     # Left-merge fills missing molecules with NaN; normalise them to None so the
-    # column holds only SDF strings or missing values.
-    output[MOPAC_MOLECULE_COLUMN] = output[MOPAC_MOLECULE_COLUMN].apply(
-        lambda value: value if isinstance(value, str) and value else None
+    # column holds only SDF strings or missing values. Assigning a Series with an
+    # explicit object dtype keeps None as None instead of pandas re-inferring
+    # StringDtype and converting it back to a missing value.
+    molecule_col = output[MOPAC_MOLECULE_COLUMN]
+    output[MOPAC_MOLECULE_COLUMN] = pd.Series(
+        [
+            value if isinstance(value, str) and value else None
+            for value in molecule_col.astype(object)
+        ],
+        index=output.index,
+        dtype=object,
     )
     return output
 
@@ -624,12 +632,33 @@ class MopacRunner2:
             )
             molecule_type = knext.string()
 
-        # The ID column is delivered as string because the IDs are the .mop/.out file
-        # name stems.
-        return knext.Schema(
-            [knext.string(), molecule_type] + [knext.double()] * len(NUMERIC_COLUMNS),
-            [id_col, MOPAC_MOLECULE_COLUMN] + NUMERIC_COLUMNS,
-        )
+        # Preserve every input column except the original molecule column (which is
+        # replaced by the computed Molecule (MOPAC) column), forcing the ID column to
+        # string because the IDs are the .mop/.out file name stems. The .append() keeps
+        # the preserved input columns and their types untouched.
+        preserved_cols = [col for col in input_cols if col != mol_col]
+        output_types = [
+            knext.string() if col == id_col else input_table_schema[col].ktype
+            for col in preserved_cols
+        ]
+        output_schema = knext.Schema(output_types, preserved_cols)
+
+        extra = [
+            (name, column_type)
+            for name, column_type in (
+                [(MOPAC_MOLECULE_COLUMN, molecule_type)]
+                + [(col, knext.double()) for col in NUMERIC_COLUMNS]
+            )
+            if name not in preserved_cols
+        ]
+        if extra:
+            output_schema = output_schema.append(
+                knext.Schema(
+                    [column_type for _, column_type in extra],
+                    [name for name, _ in extra],
+                )
+            )
+        return output_schema
 
     def execute(self, exec_context, input_table):
         id_col = self.id_column
@@ -699,13 +728,30 @@ class MopacRunner2:
         results = runner.run()
 
         exec_context.set_progress(0.95, "Building the results table...")
-        output = _build_results_table(ordered_ids, results, id_col)
+
+        # Start from the full input table so every input column is carried through. The
+        # original molecule column is dropped because it is replaced by the computed
+        # Molecule (MOPAC) column. The ID column is delivered as string because the IDs
+        # are the .mop/.out file name stems.
+        output = molecules.copy()
+        output[id_col] = output[id_col].astype(str)
+        if mol_col in output.columns:
+            output = output.drop(columns=[mol_col])
+
+        # The results table has one row per input row, in input order, so the computed
+        # columns can be assigned positionally. A computed column whose name already
+        # exists in the input overwrites that slot instead of being duplicated.
+        results_table = _build_results_table(ordered_ids, results, id_col)
+        for col in results_table.columns:
+            if col == id_col:
+                continue
+            output[col] = results_table[col].to_numpy()
 
         try:
             import knime.types.chemistry as cet
 
             output[MOPAC_MOLECULE_COLUMN] = output[MOPAC_MOLECULE_COLUMN].apply(
-                lambda sdf: cet.SdfValue(sdf) if sdf else None
+                lambda sdf: cet.SdfValue(sdf) if isinstance(sdf, str) and sdf else None
             )
         except ImportError:
             pass
