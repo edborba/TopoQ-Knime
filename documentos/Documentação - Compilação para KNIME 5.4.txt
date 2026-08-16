@@ -244,7 +244,7 @@ No Anaconda Prompt:
 
   conda activate knime-ext-bundling-5.4
 
-  build_python_extension.bat C:\Users\eborba\Documents\TopoQ - Knime\topoq C:\Users\eborba\Documents\TopoQ - Knime\topoq_build_5.4
+  build_python_extension "C:\Users\eborba\Documents\TopoQ - Knime\topoq" "C:\Users\eborba\Documents\TopoQ - Knime\topoq_build_5.4"
 
 Notas:
   - Usar o ".bat"! Digitar "build_python_extension.py" faz o

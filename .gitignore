@@ -31,5 +31,8 @@ documentos/pure_python_node_extensions_guide.pdf
 .idea/
 .vscode/
 
+# Versões antigas e arquivos de trabalho descartados
+Old/
+
 # Atenção: topoq_build_5.4/ NÃO é ignorado de propósito — é o update site
 # que o KNIME consome para instalar a extensão, então precisa ficar versionado.
