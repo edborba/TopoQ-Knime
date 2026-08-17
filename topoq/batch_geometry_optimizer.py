@@ -516,7 +516,7 @@ class _MopacBatchRunner:
 @knext.node(
     name="Batch Geometry Optimizer",
     node_type=knext.NodeType.MANIPULATOR,
-    icon_path="icons/topoq.png",
+    icon_path="icons/batch.png",
     category=topoq_category,
 )
 @knext.input_table(

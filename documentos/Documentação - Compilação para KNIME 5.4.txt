@@ -11,6 +11,15 @@ Bond Distance Checker e Structure Correction — em um update
 site instalável em máquinas com KNIME 5.4.x, sem precisar de
 Python/conda na máquina de destino.
 
+COMPATIBILIDADE: a extensão funciona no KNIME 5.4.x ou superior.
+O update site em topoq_build_5.4/ é compilado para KNIME 5.4.x;
+para instalar em versões mais novas (5.5+) é preciso recompilar
+com o bundler da versão correspondente (ver "COMO COMPILAR PARA
+OUTRAS VERSÕES DO KNIME"). O arquivo environment.yml pinado em
+knime-python-base/knime-extension 5.4 continua funcionando em
+versões posteriores, pois a versão do bundler é que determina o
+KNIME alvo do build.
+
 ============================================================
   CONCEITO IMPORTANTE: A VERSÃO DO BUNDLER É A VERSÃO ALVO
 ============================================================

@@ -128,7 +128,7 @@ def _correct_structures(
 @knext.node(
     name="Structure Correction",
     node_type=knext.NodeType.MANIPULATOR,
-    icon_path="icons/topoq.png",
+    icon_path="icons/correction.png",
     category=topoq_category,
 )
 @knext.input_table(

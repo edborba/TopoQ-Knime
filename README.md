@@ -6,6 +6,11 @@ a topologia original e validação geométrica do resultado.
 
 Todos os nós aparecem em **Community Nodes → TopoQ**.
 
+> **Compatibilidade:** a extensão funciona no **KNIME 5.4.x ou superior**. O
+> update site pré-compilado em `topoq_build_5.4/` serve para instalação em
+> KNIME 5.4.x; para versões mais novas o build precisa ser recompilado com o
+> bundler da versão correspondente (ver [Compilação e distribuição](#compilação-e-distribuição)).
+
 ## Nós
 
 ### Batch Geometry Optimizer
@@ -104,7 +109,9 @@ O update site já compilado para KNIME 5.4.x está em `topoq_build_5.4/`.
 
 ## Requisitos
 
-- KNIME Analytics Platform (o pacote em `topoq_build_5.4` exige 5.4.x)
+- KNIME Analytics Platform **5.4.x ou superior** (o update site em
+  `topoq_build_5.4` é compilado para 5.4.x; para 5.5+ é preciso recompilar
+  para a versão de destino, pois a versão do bundler determina o KNIME alvo)
 - Extensão KNIME Chemistry Types (`org.knime.features.chem.types`)
 - MOPAC no PATH ou em `C:\mopac\bin\mopac.exe`
 - OpenBabel (`obabel.exe`) no PATH ou configurado no diálogo do nó

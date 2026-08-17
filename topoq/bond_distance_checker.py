@@ -265,7 +265,7 @@ def _check_bonds(
 @knext.node(
     name="Bond Distance Checker",
     node_type=knext.NodeType.MANIPULATOR,
-    icon_path="icons/bond_checker.png",
+    icon_path="icons/bonds.png",
     category=topoq_category,
 )
 @knext.input_table(
