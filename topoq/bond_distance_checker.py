@@ -347,11 +347,24 @@ class BondDistanceChecker:
             molecule_type if col == mol_col else input_schema[col].ktype
             for col in input_cols
         ]
-        extra = knext.Schema(
-            [knext.bool_(), knext.double(), knext.string()],
-            ["Bond Warning", "Max Bond Distance (Å)", "Long Bonds"],
-        )
-        return knext.Schema(types, input_cols).append(extra)
+        # Only append the computed columns that do not already exist in the input:
+        # a column already present is overwritten by execute() and must not be
+        # duplicated in the schema, otherwise KNIME raises "Duplicate column names".
+        computed = [
+            ("Bond Warning", knext.bool_()),
+            ("Max Bond Distance (Å)", knext.double()),
+            ("Long Bonds", knext.string()),
+        ]
+        output_schema = knext.Schema(types, input_cols)
+        new_columns = [(name, ctype) for name, ctype in computed if name not in input_cols]
+        if new_columns:
+            output_schema = output_schema.append(
+                knext.Schema(
+                    [ctype for _, ctype in new_columns],
+                    [name for name, _ in new_columns],
+                )
+            )
+        return output_schema
 
     def execute(self, exec_context, input_table):
         mol_col = self.molecule_column
