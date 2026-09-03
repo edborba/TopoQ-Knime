@@ -1,76 +1,76 @@
-TOPOQ — ACORDO DE LICENÇA DE USUÁRIO FINAL (EULA)
-Copyright (c) 2026. Todos os direitos reservados.
-
-ATENÇÃO: LEIA ATENTAMENTE ESTE CONTRATO ANTES DE UTILIZAR O SOFTWARE TOPOQ.
-AO INSTALAR, COPIAR, COMPILAR OU UTILIZAR ESTE SOFTWARE, VOCÊ CONCORDA EM CUMPRIR
-TODOS OS TERMOS E CONDIÇÕES DESTE ACORDO.
+TopoQ - KNIME Extension for Topology-Preserving Semiempirical Geometry Optimization
+Copyright (C) 2026 CASE. All rights reserved.
 
 ===============================================================================
-1. CONCESSÃO DE LICENÇA
+TOPOQ - END-USER LICENSE AGREEMENT (EULA)
 ===============================================================================
 
-1.1. LICENÇA ACADÊMICA E NÃO-COMERCIAL (GRATUITA):
-O uso do TopoQ é concedido gratuitamente para fins estritamente acadêmicos,
-educacionais e de pesquisa científica sem fins lucrativos, realizado por estudantes,
-professores e pesquisadores afiliados a universidades ou institutos públicos de pesquisa.
-Qualquer trabalho, artigo ou publicação científica resultante do uso do TopoQ deve
-citar o software apropriadamente.
+IMPORTANT: PLEASE READ THIS AGREEMENT CAREFULLY BEFORE USING THIS SOFTWARE.
+BY INSTALLING, COPYING, COMPILING, OR USING THIS SOFTWARE, YOU AGREE TO BE BOUND
+BY ALL THE TERMS AND CONDITIONS OF THIS AGREEMENT.
 
-1.2. LICENÇA COMERCIAL (PAGA):
-Qualquer uso do TopoQ em empresas privadas, indústrias químicas, farmacêuticas,
-laboratórios comerciais, biotechs, consultorias pagas ou para qualquer atividade com
-finalidade econômica direta ou indireta requer a aquisição prévia de uma Licença Comercial
-válida e uma chave de ativação oficial emitida pelo detentor dos direitos autorais.
+1. GRANT OF LICENSE
+
+1.1. ACADEMIC AND NON-COMMERCIAL USE (FREE):
+Use of TopoQ is granted free of charge strictly for academic, educational, and
+non-profit scientific research purposes conducted by students, faculty, and
+researchers affiliated with universities or public research institutions.
+Any publication, article, or scientific work resulting from the use of TopoQ
+must properly cite the software.
+
+1.2. COMMERCIAL USE (PAID):
+Any use of TopoQ within private companies, chemical or pharmaceutical industries,
+commercial laboratories, biotechnology firms, paid consulting services, or for
+any activity with direct or indirect economic benefit requires the prior
+purchase of a valid Commercial License and an official authorization issued by
+the copyright holder.
+
+2. RESTRICTIONS
+
+You are NOT permitted to:
+a) Decompile, reverse engineer, disassemble, or attempt to derive the source code
+   from compiled or bundled parts of the software;
+b) Distribute, sublicense, rent, sell, resell, or make the software available to
+   third parties without prior written permission;
+c) Remove, obscure, or alter any copyright notices, trademarks, or attributions
+   contained in the software;
+d) Use an academic license to provide commercial services to third parties.
+
+3. INTELLECTUAL PROPERTY
+
+The TopoQ software, including its architecture, node definitions, algorithms,
+routines, code, and documentation, is the exclusive property of CASE and is
+protected by national copyright laws and international intellectual property
+treaties.
+
+4. DISCLAIMER OF WARRANTIES AND LIMITATION OF LIABILITY
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES (INCLUDING LOSS OF DATA,
+LOSS OF PROFITS, OR BUSINESS INTERRUPTION) ARISING OUT OF THE USE OR INABILITY
+TO USE THIS SOFTWARE.
 
 ===============================================================================
-2. RESTRIÇÕES
+MOPAC AND OPEN BABEL
 ===============================================================================
 
-Você NÃO tem permissão para:
-a) Descompilar, realizar engenharia reversa, desmontar ou tentar derivar o código-fonte
-   das partes compiladas do software;
-b) Distribuir, sublicenciar, alugar, vender, revender ou disponibilizar o software
-   ou as chaves de ativação para terceiros sem autorização prévia por escrito;
-c) Remover, ocultar ou alterar quaisquer avisos de direitos autorais, marcas ou
-   atribuições contidas no software;
-d) Utilizar uma licença acadêmica para prestar serviços comerciais a terceiros.
+MOPAC (Apache-2.0) and Open Babel (GPL-2.0) are NOT redistributed with this
+extension. They are external programs, installed separately by the user and
+invoked strictly as separate processes via command-line interface. No library
+of theirs is linked into this code. Each is governed by its own license, which
+accompanies its respective installation.
+
+This extension is not affiliated with or endorsed by the MOPAC or Open Babel
+projects.
 
 ===============================================================================
-3. PROPRIEDADE INTELECTUAL
+PORTUGUESE TRANSLATION
 ===============================================================================
 
-O software TopoQ, incluindo sua arquitetura, interface gráfica, algoritmos, rotinas,
-código e documentação, é de propriedade exclusiva e protegido pelas leis de direitos
-autorais nacionais e tratados internacionais de propriedade intelectual.
-
-===============================================================================
-4. ISENÇÃO DE GARANTIAS E LIMITAÇÃO DE RESPONSABILIDADE
-===============================================================================
-
-O SOFTWARE É FORNECIDO "NO ESTADO EM QUE SE ENCONTRA" (AS-IS), SEM NENHUM TIPO DE
-GARANTIA EXPRESSA OU IMPLÍCITA, INCLUINDO, MAS NÃO SE LIMITANDO A, GARANTIAS DE
-COMERCIALIZAÇÃO, ADEQUAÇÃO A UM DETERMINADO PROPÓSITO OU NÃO-VIOLAÇÃO.
-
-EM NENHUM CASO OS AUTORES OU DETENTORES DOS DIREITOS AUTORAIS SERÃO RESPONSÁVEIS
-POR QUAISQUER DANOS DIRETOS, INDIRETOS, INCIDENTAIS, ESPECIAIS OU CONSEQUENCIAIS
-(INCLUINDO PERDA DE DADOS, LUCROS CESSANTES OU INTERRUPÇÃO DE ATIVIDADES)
-DECORRENTES DO USO OU DA IMPOSSIBILIDADE DE USO DESTE SOFTWARE.
-
--------------------------------------------------------------------------------
-
-TOPOQ — END-USER LICENSE AGREEMENT (EULA)
-Copyright (c) 2026. All rights reserved.
-
-1. ACADEMIC / NON-COMMERCIAL USE (FREE):
-TopoQ is free of charge strictly for non-commercial academic research and educational
-purposes by students, faculty, and researchers at non-profit institutions. Scientific
-publications using TopoQ must cite the software accordingly.
-
-2. COMMERCIAL USE (PAID):
-Any use within for-profit corporations, chemical/pharmaceutical industry, commercial
-laboratories, consulting services, or profit-generating activities requires a valid
-Commercial License and activation key issued by the copyright holder.
-
-3. RESTRICTIONS:
-Reverse engineering, decompilation, unauthorized redistribution, sublicensing, or resale
-is strictly prohibited. All rights reserved.
+A Portuguese translation of this agreement is available in LICENSE.pt-BR.txt.
+It is provided for convenience and documentation; this English text in ASCII
+format is the one with legal effect for the KNIME extension bundler.

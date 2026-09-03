@@ -1,116 +1,102 @@
 ================================================================================
-TOPOQ — RELATÓRIO DE COMPONENTES E LICENÇAS DE TERCEIROS
+TOPOQ KNIME EXTENSION — RELATÓRIO DE COMPONENTES E LICENÇAS DE TERCEIROS
 ================================================================================
-Software: TopoQ
-Versão: 1.0.0
-Titular / Desenvolvedores: CASE
+Software: TopoQ - Extensão para KNIME Analytics Platform
+Nós Integrados:
+  - Batch Geometry Optimizer (Cálculo semiempírico MOPAC em lote e paralelismo)
+  - Structure Correction (Recomposição topológica e preservação de cargas/estereoquímica)
+  - Bond Distance Checker (Auditoria geométrica e detecção de falhas covalentes)
+Versão: 0.1.0
+Identificador da Extensão: br.com.eborba.knime.topoq
+Titular / Desenvolvedores: CASE (eborba)
 Licença do TopoQ: Proprietária / EULA (Uso Acadêmico Gratuito e Comercial Pago)
-Linguagem Principal: Python 3.11
+Ambiente de Execução: Python 3.11 (gerenciado via KNIME Python Extension Framework)
 ================================================================================
 
 
-ÍNDICE DE PACOTES E COMPONENTES UTILIZADOS
+ÍNDICE DE PACOTES E COMPONENTES UTILIZADOS NA EXTENSÃO KNIME
 --------------------------------------------------------------------------------
 
-1. DEPENDÊNCIAS PYTHON DIRETAS (TEMPO DE EXECUÇÃO / RUNTIME)
-   • CustomTkinter (v6.0.0)
-     - Licença: CC0 1.0 Universal (Dedicação ao Domínio Público)
-     - Autor: Tom Schimansky
-     - Função no TopoQ: Interface gráfica moderna, cards, campos e temas claro/escuro.
-
-   • Pillow / PIL (v12.3.0)
-     - Licença: HPND / MIT-CMU
-     - Autores: Jeffrey A. Clark (Alex Clark) e colaboradores (baseado no PIL de Fredrik Lundh)
-     - Função no TopoQ: Carregamento, renderização e redimensionamento de imagens e ícones.
-
-   • NumPy (v2.4.6)
+1. DEPENDÊNCIAS PYTHON DIRETAS (RUNTIME DA EXTENSÃO)
+   • Pandas (v2.0+)
      - Licença: BSD 3-Clause
-     - Autores: Travis E. Oliphant e desenvolvedores do NumPy
-     - Função no TopoQ: Computação vetorial e matricial para distâncias interatômicas e geometria 3D.
+     - Autores: Wes McKinney e comunidade Pandas / NumFOCUS
+     - Função no TopoQ KNIME: Manipulação de tabelas, DataFrames, extração e
+       estruturação das propriedades calculadas (HOMO, LUMO, Dipolo, Calor de Formação)
+       e junção de metadados moleculares.
 
-   • Darkdetect (v0.8.0)
-     - Licença: BSD 3-Clause
-     - Autor: Alberto Sottile
-     - Função no TopoQ: Detecção automática do modo escuro/claro do sistema operacional.
+   • KNIME Python Extension API (knime-python-base 5.4 & knime-extension 5.4)
+     - Licença: Eclipse Public License 2.0 (EPL-2.0) / GNU Lesser General Public License
+     - Mantenedor: KNIME AG
+     - Função no TopoQ KNIME: Framework oficial de nós em Python puro para o KNIME
+       Analytics Platform (knime.extension, knext.node, knext.parameter, knext.Table).
 
-   • Packaging (v26.3)
-     - Licença: Apache License 2.0 / BSD 2-Clause
-     - Autores: Donald Stufft e comunidade PyPA
-     - Função no TopoQ: Manipulação e validação semântica de versões.
+   • KNIME Chemistry Types (knime.types.chemistry / org.knime.features.chem.types)
+     - Licença: Eclipse Public License 2.0 (EPL-2.0)
+     - Mantenedor: KNIME AG / Comunidade Química KNIME
+     - Função no TopoQ KNIME: Suporte a portas e células moleculares químicas
+       nativas no KNIME (SdfValue, MolValue).
 
-2. AMBIENTE DE EXECUÇÃO E SUBSISTEMA GRÁFICO
-   • Python Runtime (v3.11+)
+2. AMBIENTE DE EXECUÇÃO PYTHON
+   • Python Runtime (v3.11)
      - Licença: Python Software Foundation License (PSFL)
      - Mantenedor: Python Software Foundation (PSF)
-     - Função no TopoQ: Interpretador e biblioteca padrão da linguagem.
+     - Função no TopoQ KNIME: Interpretador da linguagem de programação.
 
-   • Tcl/Tk (v8.6+)
-     - Licença: Tcl/Tk License (Estilo BSD Permissiva)
-     - Autores: Regents of the University of California, Sun Microsystems, Scriptics
-     - Função no TopoQ: Motor nativo de janelas e renderização gráfica da interface.
+   • Módulos Nativos da Biblioteca Padrão Python (Python Standard Library)
+     - math (cálculos de distâncias interatômicas euclidianas 3D e tolerâncias covalentes)
+     - logging (registro estruturado de eventos, alertas e diagnósticos no console do KNIME)
+     - concurrent.futures (gerenciamento de pool de threads e paralelismo de workers MOPAC)
+     - subprocess (acionamento controlado de executáveis externos via linha de comando)
+     - re, os, sys, pathlib, shutil, tempfile, threading, time (manipulação de sistema de
+       arquivos, pastas temporárias por molécula e leitura de saídas).
 
-3. FERRAMENTAS DE EMPACOTAMENTO E INSTALAÇÃO
-   • PyInstaller (v6.22+)
-     - Licença: GNU General Public License v2 com EXCEÇÃO ESPECIAL PARA SOFTWARE PROPRIETÁRIO
-     - Autores: Hartmut Goebel, Giovanni Bajo, David Vierra, David Cortesi, Martin Zibricky
-     - Função no TopoQ: Empacotamento do executável autocontido para Windows e Linux.
-
-   • Inno Setup (v6+)
-     - Licença: Inno Setup License (Estilo BSD Modificada)
-     - Autores: Jordan Russell, Martijn Laan
-     - Função no TopoQ: Assistente de instalação nativo para sistemas operacionais Windows.
-
-4. FERRAMENTAS CIENTÍFICAS EXTERNAS (PROCESSOS ISOLADOS)
+3. FERRAMENTAS CIENTÍFICAS EXTERNAS (PROCESSOS ISOLADOS - NÃO DISTRIBUÍDOS)
    • MOPAC (OpenMOPAC)
      - Licença: Apache License 2.0
      - Autores: Stewart Computational Chemistry / Molecular Sciences Software Institute (MolSSI)
-     - Função no TopoQ: Motor semiempírico externo de cálculo mecânico-quântico.
+     - Função: Motor semiempírico mecânico-quântico externo acionado via linha de comando.
+     - Nota: O MOPAC NÃO é distribuído junto com esta extensão. É instalado
+       separadamente pelo usuário e invocado estritamente como subprocesso independente
+       (subprocess.Popen).
 
    • Open Babel
      - Licença: GNU General Public License v2.0 (GPL-2.0)
      - Autores: Geoff Hutchison, Chris Morley, Noel O'Boyle e comunidade Open Babel
-     - Função no TopoQ: Conversões químicas externas chamadas exclusivamente via linha de comando.
+     - Função: Conversão de formatos moleculares químicos (obabel.exe) via linha de comando.
+     - Nota: O Open Babel NÃO é redistribuído nem empacotado na extensão. Não há
+       linkagem estática ou dinâmica (sem bibliotecas .dll / .so linkadas).
+
+4. FERRAMENTAS DE COMPILAÇÃO E EMPACOTAMENTO
+   • knime-extension-bundling (v5.4)
+     - Licença: Eclipse Public License 2.0 (EPL-2.0) / Ferramentas auxiliares BSD/MIT
+     - Mantenedor: KNIME AG
+     - Função: Criação do ambiente conda autocontido e empacotamento do repositório
+       p2 / update-site para instalação no KNIME 5.4.
 
 
 ================================================================================
-DECLARAÇÃO DE CONFORMIDADE JURÍDICA PARA O INPI E COMITÊS DE ÉTICA / NIT
+DECLARAÇÃO DE CONFORMIDADE JURÍDICA PARA O INPI E NIT / COMITÊS
 ================================================================================
 
-1. COMPATIBILIDADE DE TODAS AS BIBLIOTECAS INCORPORADAS:
-   Todas as bibliotecas embutidas no executável final do TopoQ (CustomTkinter,
-   Pillow, NumPy, Darkdetect, Packaging, Tcl/Tk e o interpretador Python) utilizam
-   licenças de código aberto categorizadas internacionalmente como "PERMISSIVAS"
-   (Permissive Open Source Licenses - MIT, BSD, Apache 2.0, PSFL, CC0).
-   Estas licenças autorizam de forma explícita e irrevogável:
-   a) O uso acadêmico, governamental, educacional e comercial;
-   b) A incorporação e distribuição em softwares proprietários de código fechado;
-   c) A cobrança ou concessão de licenças comerciais sem qualquer obrigação de
-      revelar o código-fonte da aplicação que as utiliza.
+1. COMPATIBILIDADE DAS DEPENDÊNCIAS DE RUNTIME:
+   As dependências diretas de tempo de execução da extensão TopoQ para KNIME
+   (Pandas, KNIME Python Extension API, Python Runtime) utilizam licenças
+   permissivas e de código aberto compatíveis (BSD 3-Clause, EPL-2.0, PSFL).
+   Tais licenças autorizam o uso acadêmico, comercial e a publicação de extensões
+   proprietárias ou de código restrito para o ecossistema KNIME.
 
-2. A EXCEÇÃO ESPECIAL DO PYINSTALLER:
-   Embora o código-fonte do PyInstaller seja licenciado sob GPL v2, os próprios
-   autores incluíram formalmente no arquivo de licença uma "Exceção Especial"
-   (Special Exception) que estipula textualmente:
-   "In addition, as a special exception, the copyright holders give permission to
-   link this program with independent modules to produce an executable, regardless
-   of the license terms of these independent modules, and to copy and distribute
-   the resulting executable under terms of your choice, provided that you also meet,
-   for each linked independent module, the terms and conditions of the license of
-   that module."
-   Assim, o executável gerado não sofre contaminação por copyleft e pode ser
-   licenciado sob termos proprietários.
-
-3. ISOLAMENTO DAS FERRAMENTAS EXTERNAS (OPEN BABEL E MOPAC):
-   O TopoQ NÃO contém, não compila e não faz linkagem (nem dinâmica nem estática)
-   com o código-fonte ou com bibliotecas (.dll / .so) do Open Babel ou do MOPAC.
-   O acionamento dessas ferramentas ocorre estritamente por processos filhos
-   independentes do sistema operacional (via subprocess.Popen na linha de comando).
-   Pelas diretrizes expressas da Free Software Foundation (FSF, Seção 2 da GPL v2):
+2. ISOLAMENTO JURÍDICO DAS FERRAMENTAS EXTERNAS (OPEN BABEL E MOPAC):
+   A extensão TopoQ NUNCA inclui, compila ou linka código-fonte ou binários
+   dinâmicos (.dll, .so) do Open Babel ou do MOPAC.
+   O acionamento do MOPAC e do Open Babel (obabel.exe) ocorre exclusivamente por
+   processos externos independentes do sistema operacional através de chamadas
+   via subprocess na linha de comando.
+   Conforme os termos expressos da Cláusula 2 da licença GNU GPL v2:
    "Mere aggregation of another work not based on the Program with the Program...
    on a volume of a storage or distribution medium does not bring the other work
    under the scope of this License."
-   Portanto, a comunicação externa via linha de comando constitui mero agregamento,
-   mantendo o TopoQ juridicamente independente e plenamente elegível para registro
-   proprietário de programa de computador.
+   Assim, a extensão permanece juridicamente independente e livre de contaminação
+   de copyleft, sendo elegível para licenciamento proprietário e registro no INPI.
 
 ================================================================================
