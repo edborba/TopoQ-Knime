@@ -1,5 +1,5 @@
 TopoQ - KNIME Extension for Topology-Preserving Semiempirical Geometry Optimization
-Copyright (C) 2026 CASE. All rights reserved.
+Copyright (C) 2026 CASE - Computer Aided Science. All rights reserved.
 
 ===============================================================================
 TOPOQ - END-USER LICENSE AGREEMENT (EULA)

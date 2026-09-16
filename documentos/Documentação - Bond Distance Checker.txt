@@ -19,7 +19,7 @@ fisicamente impossíveis no resultado final.
 - **Pasta do projeto:** `topoq`
 - **Arquivo do nó:** `bond_distance_checker.py`
 - **Versão da extensão:** 0.1.0
-- **Autor:** eborba
+- **Autores:** Tiago Branquinho Oliveira (Doutor em Ciências), Eduardo Borba Alves (Mestre em Química), Joyce Thayne da Conceição dos Santos (Mestra em Ciências Farmacêuticas) — CASE - Computer Aided Science
 
 ---
 

@@ -8,7 +8,9 @@ Nós Integrados:
   - Bond Distance Checker (Auditoria geométrica e detecção de falhas covalentes)
 Versão: 0.1.0
 Identificador da Extensão: br.com.eborba.knime.topoq
-Titular / Desenvolvedores: CASE (eborba)
+Titular / Grupo de Pesquisa: CASE - Computer Aided Science
+Autores: Tiago Branquinho Oliveira (Doutor em Ciências), Eduardo Borba Alves (Mestre em Química), Joyce Thayne da Conceição dos Santos (Mestra em Ciências Farmacêuticas)
+Contato: topoqv1@gmail.com
 Licença do TopoQ: Proprietária / EULA (Uso Acadêmico Gratuito e Comercial Pago)
 Ambiente de Execução: Python 3.11 (gerenciado via KNIME Python Extension Framework)
 ================================================================================
